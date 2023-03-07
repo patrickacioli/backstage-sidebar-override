@@ -27,12 +27,40 @@ import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
 
-import { AlertDisplay, OAuthRequestDialog } from '@backstage/core-components';
+import {
+  AlertDisplay,
+  BackstageOverrides,
+  OAuthRequestDialog,
+} from '@backstage/core-components';
 import { createApp } from '@backstage/app-defaults';
 import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
+import { BackstageTheme, lightTheme } from '@backstage/theme';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
+
+export const createCustomThemeOverrides = (
+  theme: BackstageTheme,
+): BackstageOverrides => {
+  return {
+    BackstageSidebar: {
+      drawer: {
+        backgroundColor: '#c1c1c1',
+      },
+    },
+  };
+};
+
+const customTheme: BackstageTheme = {
+  ...lightTheme,
+  overrides: {
+    // These are the overrides that Backstage applies to `material-ui` components
+    ...lightTheme.overrides,
+    // These are your custom overrides, either to `material-ui` or Backstage components.
+    ...createCustomThemeOverrides(lightTheme),
+  },
+};
 
 const app = createApp({
   apis,
@@ -51,6 +79,18 @@ const app = createApp({
       catalogIndex: catalogPlugin.routes.catalogIndex,
     });
   },
+  themes: [
+    {
+      id: 'my-theme',
+      title: 'My Custom Theme',
+      variant: 'light',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={customTheme}>
+          <CssBaseline>{children}</CssBaseline>
+        </ThemeProvider>
+      ),
+    },
+  ],
 });
 
 const routes = (
